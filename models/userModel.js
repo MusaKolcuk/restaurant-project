@@ -65,7 +65,7 @@ const UserSchema = new Schema({
 
 
 //UserSchema Methods
-
+//bu fonksiyon ile passwordu hashleyecegiz.
 UserSchema.methods.generateJwtFromUser = function() {
     const { JWT_SECRET_KEY, JWT_EXPIRE } = process.env;
 
@@ -81,7 +81,7 @@ UserSchema.methods.generateJwtFromUser = function() {
     return token;
 };
 
-
+//bu fonksiyon ile girilen passwordun dogru olup olmadigini kontrol edecegiz.
 UserSchema.methods.getResetPasswordTokenFromUser = function() {      //reset password token olusturmak icin fonksiyon tanimladik.
     const randomHexString = crypto.randomBytes(15).toString("hex");  //random hexadecimal string olusturduk. (15 byte)  (crypto modulu ile)  (toString ile hexadecimal stringe cevirdik).
     const { RESET_PASSWORD_EXPIRE } = process.env;                   //env dosyasindan reset password expire degerini aldik.

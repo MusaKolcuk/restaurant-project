@@ -4,7 +4,7 @@ const dotenv = require("dotenv");
 const connectDatabase = () => {
 
     mongoose.connect(process.env.MONGO_URI, {
-        dbName : "question-answer",
+        dbName : "restaurant-project",
         useNewUrlParser: true,
         useUnifiedTopology: true,           //performansi arttirir.
 
