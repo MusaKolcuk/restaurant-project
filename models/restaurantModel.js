@@ -36,12 +36,12 @@ const restaurantSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
-    likes: [
-        {
-            type: mongoose.Schema.ObjectId,                                     //like alanı içindeki kullanıcı id'lerini tutuyoruz
-            ref: "User"                                                         //ref ile hangi model ile ilişkilendirdiğimizi belirtiyoruz
-        }
-    ],
+    // likes: [
+    //     {
+    //         type: mongoose.Schema.ObjectId,                                     //like alanı içindeki kullanıcı id'lerini tutuyoruz
+    //         ref: "User"                                                         //ref ile hangi model ile ilişkilendirdiğimizi belirtiyoruz
+    //     }
+    // ],
     openingHours: {
         type: Array,
         required: true

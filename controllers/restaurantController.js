@@ -1,5 +1,5 @@
-const user = require("../models/userModel");
 const Restaurant = require("../models/restaurantModel");
+const User = require("../models/userModel");
 const CustomError = require("../helpers/error/CustomError");
 const asyncErrorWrapper = require("express-async-handler");
 
@@ -146,4 +146,4 @@ const getSingleRestaurant = asyncErrorWrapper(async (req, res, next) => {
 
 
 
-module.exports = { createRestaurant, getAllRestaurants, deleteRestaurant, updateRestaurant, getSingleRestaurant};
+module.exports = { createRestaurant, getAllRestaurants, deleteRestaurant, updateRestaurant, getSingleRestaurant,};

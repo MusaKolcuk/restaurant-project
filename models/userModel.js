@@ -4,6 +4,8 @@ const Schema = mongoose.Schema;
 const jwt = require("jsonwebtoken")
 const crypto = require("crypto");                           //crypto modulu ile random string olusturacagiz. (reset password icin)
 const Question = require("./questionModel");
+const restaurantModel = require("./restaurantModel");
+const Menu = require("./menuModel");
 
 const UserSchema = new Schema({
 
@@ -51,10 +53,16 @@ const UserSchema = new Schema({
         type: String,
         default: "default.jpg"
     },
-    blocked: {              //admin isterse bazi kullanicilarin hesaplarini bloke edebilir.
+    blocked: {                                                          //admin isterse bazi kullanicilarin hesaplarini bloke edebilir.
         type: Boolean,
         default: false,
     },
+    favorites: [                                                        //kullanicinin favori restaurantlarini tutacagiz.
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Restaurant"
+        }
+    ],
     resetPasswordToken: {
         type: String,
     },

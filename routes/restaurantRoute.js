@@ -1,8 +1,6 @@
 const express = require("express");
-const { getSingleRestaurant, getAllRestaurants,  } = require("../controllers/restaurantController.js");
 const { getAccessToRoute, getRestaurantOwnerAccess } = require("../middlewares/authorization/auth.js");
-const { createRestaurant, deleteRestaurant, updateRestaurant } = require("../controllers/restaurantController.js");
-
+const { createRestaurant, getAllRestaurants, deleteRestaurant, updateRestaurant, getSingleRestaurant, } = require("../controllers/restaurantController.js");
 
 const router = express.Router();
 
@@ -11,6 +9,10 @@ router.get("/", getAllRestaurants);
 router.delete("/:id", getAccessToRoute, deleteRestaurant);
 router.put("/:id", [getAccessToRoute, getRestaurantOwnerAccess], updateRestaurant);
 router.get("/:id", getSingleRestaurant);
+
+
+
+
 
 //  router.get("/:id/like", [getAccessToRoute, ], likeQuestion);
 
