@@ -1,4 +1,5 @@
 const user = require("../models/userModel");
+const Restaurant = require("../models/restaurantModel");
 const CustomError = require("../helpers/error/CustomError");
 const asyncErrorWrapper = require("express-async-handler");
 
@@ -10,7 +11,7 @@ const createRestaurant = async (req, res) => {
         if (!existingRestaurant) {
         const restaurant = await Restaurant.create({
             ...req.body,
-            createdBy: req.user.id,
+            user: req.user.id,
         });
 
         res.status(201).json({ success: true, restaurant });
@@ -89,39 +90,60 @@ const deleteRestaurant = async (req, res) => {
 
 
 
-const updateRestaurant = async (req, res) => {
-    try {
-        const restaurantId = req.params.id;
-        const restaurant = await Restaurant.findById(restaurantId)
+const updateRestaurant = asyncErrorWrapper(async (req, res, next) => {
+    const { id } = req.params;
+    const { name, description, location, menu, photos, phone, website, openingHours, cuisine, priceRange, acceptsReservations, parkingOptions, creditCard, featuredDishes } = req.body;
 
-        if (!restaurant) {
-            return res.status(404).json({
-                success: false,
-                message: "The restaurant was not found"
-            })
-        }
-        if (!restaurant.createdBy || restaurant.createdBy.toString() !== req.user.id) {
-            return res.status(403).json({
-                success: false,
-                message: "You are not authorized to update this restaurant"
-            })
-        }
-        const updatedRestaurant = await Restaurant.findOneAndUpdate({ _id: restaurantId }, { $set: req.body }, { new: true })
-        return res.status(200).json({
-            success: true,
-            message: "Your restaurant has been updated",
-            updatedRestaurant,
-        })
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({
-            success: false,
-            message: "Restaurant couldn't updated" + error
-        })
+    let restaurant = await Restaurant.findById(id).populate("user");
+
+    // Restoran sahibi kontrolü burada gerçekleştirilmeli.
+    if (!restaurant.user || restaurant.user._id.toString() !== req.user.id) {
+        return next(new CustomError("Only the owner of the restaurant can update the restaurant", 403));
     }
-}
+
+    restaurant.name = name || restaurant.name;
+    restaurant.description = description || restaurant.description;
+    restaurant.location = location || restaurant.location;
+    restaurant.menu = menu || restaurant.menu;
+    restaurant.photos = photos || restaurant.photos;
+    restaurant.phone = phone || restaurant.phone;
+    restaurant.website = website || restaurant.website;
+    restaurant.openingHours = openingHours || restaurant.openingHours;
+    restaurant.cuisine = cuisine || restaurant.cuisine;
+    restaurant.priceRange = priceRange || restaurant.priceRange;
+    restaurant.acceptsReservations = acceptsReservations || restaurant.acceptsReservations;
+    restaurant.parkingOptions = parkingOptions || restaurant.parkingOptions;
+    restaurant.creditCard = creditCard || restaurant.creditCard;
+    restaurant.featuredDishes = featuredDishes || restaurant.featuredDishes;
+
+    restaurant = await restaurant.save();
+
+    return res.status(200).json({
+        success: true,
+        data: restaurant
+    });
+});
+
+const getSingleRestaurant = asyncErrorWrapper(async (req, res, next) => {
+    const { id } = req.params;
+
+    const restaurant = await Restaurant.findById(id).populate("user");
+
+    if (!restaurant) {
+        return next(new CustomError("The restaurant not found", 404));
+    }
+
+    return res.status(200).json({
+        success: true,
+        data: restaurant
+    });
+});
 
 
 
 
-module.exports = { createRestaurant, getAllRestaurants, deleteRestaurant, updateRestaurant };
+
+
+
+
+module.exports = { createRestaurant, getAllRestaurants, deleteRestaurant, updateRestaurant, getSingleRestaurant};

@@ -1,5 +1,5 @@
 const Question = require('../models/questionModel');                       //Question modelini çağırdık
-const CustomError = require('../helpers/error/customError');
+const CustomError = require('../helpers/error/CustomError');              //CustomError kütüphanesini çağırdık
 const asyncErrorWrapper = require('express-async-handler');                //async await kullanabilmek için express-async-handler kütüphanesini çağırdık
 
 

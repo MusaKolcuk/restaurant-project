@@ -49,4 +49,4 @@ const checkQuestionAndAnswerExist = asyncErrorWrapper(async (req, res, next) => 
 });
 
 
-module.exports = { checkUserExist, checkQuestionExist, checkQuestionAndAnswerExist}
+module.exports = { checkUserExist, checkQuestionExist, checkQuestionAndAnswerExist,}

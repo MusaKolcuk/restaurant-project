@@ -21,7 +21,6 @@ const restaurantSchema = new mongoose.Schema({
         type: Array,
         required: true
     },
-
     photos: {
         type: Array,
         default: []
@@ -33,6 +32,16 @@ const restaurantSchema = new mongoose.Schema({
     website: {
         type: String,
     },
+    likeCount: {                                                                //kaç kişi beğendi en çok beğenilen restaurant göstermek için
+        type: Number,
+        default: 0
+    },
+    likes: [
+        {
+            type: mongoose.Schema.ObjectId,                                     //like alanı içindeki kullanıcı id'lerini tutuyoruz
+            ref: "User"                                                         //ref ile hangi model ile ilişkilendirdiğimizi belirtiyoruz
+        }
+    ],
     openingHours: {
         type: Array,
         required: true
@@ -60,7 +69,12 @@ const restaurantSchema = new mongoose.Schema({
     featuredDishes: {               //one cikan yemekler
         type: Array,
         default: []
-    }
+    },
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
+    },
     }, { timestamps: true});
 
 module.exports = mongoose.model("Restaurant", restaurantSchema);

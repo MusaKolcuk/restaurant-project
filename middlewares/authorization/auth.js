@@ -3,6 +3,8 @@ const jwt = require("jsonwebtoken");
 const User = require("../../models/userModel");
 const Question = require("../../models/questionModel");
 const Answer = require("../../models/answerModel");
+const Restaurant = require("../../models/restaurantModel");
+const Menu = require("../../models/menuModel");
 const asyncErrorWrapper = require("express-async-handler");
 const {isTokenIncluded, getAccessTokenFromHeader} = require("../../helpers/authorization/tokenHelpers");
 
@@ -73,4 +75,24 @@ const getAnswerOwnerAccess = asyncErrorWrapper (async(req, res, next) => {
 });
 
 
-module.exports = { getAccessToRoute, getAdminAccess, getQuestionOwnerAccess, getAnswerOwnerAccess,  };
+
+const getRestaurantOwnerAccess = asyncErrorWrapper(async (req, res, next) => {
+    const { id } = req.params;
+    const { id: userId } = req.user;
+
+    const restaurant = await Restaurant.findById(id);
+
+    if (!restaurant) {
+        return next(new CustomError("The restaurant not found", 404));
+    }
+
+    if (restaurant.user && restaurant.user.toString() !== userId) {
+        return next(new CustomError("Only the owner of the restaurant can access this route", 403));
+    }
+
+    next();
+});
+
+
+
+module.exports = { getAccessToRoute, getAdminAccess, getQuestionOwnerAccess, getAnswerOwnerAccess, getRestaurantOwnerAccess  };

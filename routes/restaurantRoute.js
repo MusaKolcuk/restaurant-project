@@ -1,17 +1,19 @@
 const express = require("express");
 const { getSingleRestaurant, getAllRestaurants,  } = require("../controllers/restaurantController.js");
-const { checkRestaurantExist } = require("../middlewares/database/databaseErrorHelpers.js");
-const { getAccessToRoute } = require("../middlewares/authorization/auth.js");
+const { getAccessToRoute, getRestaurantOwnerAccess } = require("../middlewares/authorization/auth.js");
 const { createRestaurant, deleteRestaurant, updateRestaurant } = require("../controllers/restaurantController.js");
+
 
 const router = express.Router();
 
-router.route("/").post(authMiddleware.protect, restaurantController.createRestaurant);
-router.route("/").get(restaurantController.getAllRestaurants);
-router.route("/:id").delete(authMiddleware.protect, restaurantController.deleteRestaurant);
+router.post("/", getAccessToRoute, createRestaurant);
+router.get("/", getAllRestaurants);
+router.delete("/:id", getAccessToRoute, deleteRestaurant);
+router.put("/:id", [getAccessToRoute, getRestaurantOwnerAccess], updateRestaurant);
+router.get("/:id", getSingleRestaurant);
+
+//  router.get("/:id/like", [getAccessToRoute, ], likeQuestion);
 
 
-
-router.route("/:id").put(authMiddleware.protect, restaurantController.updateRestaurant);
 
 module.exports = router;
