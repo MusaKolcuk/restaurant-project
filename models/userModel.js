@@ -53,14 +53,24 @@ const UserSchema = new Schema({
         type: String,
         default: "default.jpg"
     },
-    blocked: {                                                          //admin isterse bazi kullanicilarin hesaplarini bloke edebilir.
+    blocked: {                                                               //admin isterse bazi kullanicilarin hesaplarini bloke edebilir.
         type: Boolean,
         default: false,
     },
-    favorites: [                                                        //kullanicinin favori restaurantlarini tutacagiz.
+    favorites: [                                                             //kullanicinin favori restaurantlarini tutacagiz.
         {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Restaurant"
+        }
+    ],
+    followers: [                                                             //kullanicinin takipcilerini tutacagiz.
+        {   type: mongoose.Schema.Types.ObjectId,
+            ref: 'User'
+        }
+    ],
+    following: [                                                            //kullanicinin takip ettiklerini tutacagiz.
+        {   type: mongoose.Schema.Types.ObjectId,
+            ref: 'User'
         }
     ],
     resetPasswordToken: {
