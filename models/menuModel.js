@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
-const user = require("./userModel");
+const User = require("./userModel.js");
+const Restaurant = require("./restaurantModel.js");
 const Schema = mongoose.Schema;
 
 const menuSchema = new mongoose.Schema({

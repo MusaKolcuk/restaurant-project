@@ -17,10 +17,10 @@ const restaurantSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    menu: {
-        type: Array,
-        required: true
-    },
+    menu: [{                                                                //buradaki menü id'si ile menu modelindeki id'yi ilişkilendiriyoruz
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Menu"
+    }],
     photos: {
         type: Array,
         default: []

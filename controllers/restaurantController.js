@@ -3,90 +3,69 @@ const User = require("../models/userModel");
 const CustomError = require("../helpers/error/CustomError");
 const asyncErrorWrapper = require("express-async-handler");
 
-const createRestaurant = async (req, res) => {
-    try {
-        const { name } = req.body;
-        const existingRestaurant = await Restaurant.findOne({ name });
+const createRestaurant = asyncErrorWrapper(async (req, res) => {
+    const { name } = req.body;
+    const existingRestaurant = await Restaurant.findOne({ name });
 
-        if (!existingRestaurant) {
+    if (!existingRestaurant) {
         const restaurant = await Restaurant.create({
             ...req.body,
             user: req.user.id,
         });
 
         res.status(201).json({ success: true, restaurant });
-        } else {
+    } else {
         return res.status(400).json({
             success: false,
             message: "The restaurant is already created.",
         });
-        }
-    } catch (error) {
-        console.log(error)
-        return res.status(500).json({
-        success: false,
-        error,
-
-        });
     }
-};
+});
 
 
-const getAllRestaurants = async (req, res) => {
-    try {
-        const { page = 1, limit = 10, name, location, rating } = req.query;     //sayfalama, sıralama, filtreleme ve sınırlandırma özelliklerini ekle
-        const skip = (page - 1) * limit;
+const getAllRestaurants = asyncErrorWrapper(async (req, res) => {
+    const { page = 1, limit = 10, name, location, rating } = req.query;         //sayfalama, sıralama, filtreleme ve sınırlandırma özelliklerini ekle
+    const skip = (page - 1) * limit;
 
-        const query = {};                                                       //bos bir sorgu nesnesi olustur
+    const query = {};                                                           //filtreleme için boş bir nesne oluştur
 
-        if (name) {
-            query.name = { $regex: name, $options: 'i' };                       //regex kullanip $options: 'i' yaparak büyük-kücük harf duyarsizligini aktif ettik
-        }
-
-        if (location) {
-            query.location = { $regex: location, $options: 'i' };
-        }
-
-        let sort = { name: 1 };                                                // Varsayılan siralama kriteri isme göre artan siralama, ancak rating verildiginde rating'e göre azalan siralama yaptim
-
-        if (rating) {
-            sort = { rating: -1 };
-        }
-
-        const restaurants = await Restaurant.find(query)
-            .sort(sort)
-            .skip(skip)
-            .limit(parseInt(limit));
-
-        res.status(200).json({ success: true, restaurants });
-    } catch (error) {
-        return res.status(500).json({
-        success: false,
-        error,
-        });
+    if (name) {
+        query.name = { $regex: name, $options: 'i' };
     }
-};
 
-const deleteRestaurant = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const deletedRestaurant = await Restaurant.findByIdAndDelete(id);
+    if (location) {
+        query.location = { $regex: location, $options: 'i' };                   //i: büyük küçük harf duyarlılığı olmadan arama yapar
+    }
 
-        if (!deletedRestaurant) {
-            return res.status(404).json({
-                success: false,
-                message: "Restaurant not found.",
-            });
-        }
+    let sort = { name: 1 };
 
-        res.status(200).json({ success: true, message: "Restaurant deleted successfully." });
-    } catch (error) {
-        return res.status(500).json({
+    if (rating) {
+        sort = { rating: -1 };
+    }
+
+    const restaurants = await Restaurant.find(query)
+        .sort(sort)
+        .skip(skip)
+        .limit(parseInt(limit));                                                //limit string olarak geliyor, integer'a çevirmek için parseInt kullan
+
+    res.status(200).json({ success: true, restaurants });
+});
+
+
+const deleteRestaurant = asyncErrorWrapper(async (req, res) => {
+    const { id } = req.params;
+    const deletedRestaurant = await Restaurant.findByIdAndDelete(id);
+
+    if (!deletedRestaurant) {
+        return res.status(404).json({
             success: false,
-            error,
+            message: "Restaurant not found.",
         });
     }
-};
+
+    res.status(200).json({ success: true, message: "Restaurant deleted successfully." });
+});
+
 
 
 
@@ -127,7 +106,7 @@ const updateRestaurant = asyncErrorWrapper(async (req, res, next) => {
 const getSingleRestaurant = asyncErrorWrapper(async (req, res, next) => {
     const { id } = req.params;
 
-    const restaurant = await Restaurant.findById(id).populate("user");
+    const restaurant = await Restaurant.findById(id).populate("user").populate("menu");
 
     if (!restaurant) {
         return next(new CustomError("The restaurant not found", 404));
@@ -138,9 +117,6 @@ const getSingleRestaurant = asyncErrorWrapper(async (req, res, next) => {
         data: restaurant
     });
 });
-
-
-
 
 
 

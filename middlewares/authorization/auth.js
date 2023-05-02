@@ -75,7 +75,7 @@ const getAnswerOwnerAccess = asyncErrorWrapper (async(req, res, next) => {
 });
 
 
-
+//bu fonksiyon ile restaurant sahibi sadece restaurantu silebilir.
 const getRestaurantOwnerAccess = asyncErrorWrapper(async (req, res, next) => {
     const { id } = req.params;
     const { id: userId } = req.user;
@@ -92,6 +92,23 @@ const getRestaurantOwnerAccess = asyncErrorWrapper(async (req, res, next) => {
 
     next();
 });
+
+// const getMenuOwnerAccess = asyncErrorWrapper(async (req, res, next) => {
+//     const { id } = req.params;
+//     const { id: userId } = req.user;
+
+//     const menu = await Menu.findById(id);
+
+//     if (!menu) {
+//         return next(new CustomError("The menu not found", 404));
+//     }
+
+//     if (menu.user && menu.user.toString() !== userId) {
+//         return next(new CustomError("Only the owner of the menu can access this route", 403));
+//     }
+
+//     next();
+// });
 
 
 
