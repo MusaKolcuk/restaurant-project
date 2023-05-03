@@ -83,6 +83,26 @@ const restaurantSchema = new mongoose.Schema({
             ref: "Comment"
         }
     ],
+    category: {
+        type: String,
+        required: true,
+        enum: [                                                                             //enum ile sadece belirtilen kategorilerden birini seçebiliriz
+            "Türk Mutfağı",
+            "Kahvaltı",
+            "FastFood",
+            "Vegan",
+            "Dünya Mutfağı",
+            "Tatlılar",
+            "Kahve",
+            "İçecekler"
+        ]
+    },
+    //max 3 yap
+    tags: {
+        type: Array,
+        default: []
+    },
+
     }, { timestamps: true});
 
 module.exports = mongoose.model("Restaurant", restaurantSchema);

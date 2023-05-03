@@ -10,7 +10,7 @@ const asyncErrorWrapper = require('express-async-handler');
 
 
 const createMenu = asyncErrorWrapper(async (req, res, next) => {
-    const { restaurantId, name, description, price, category, photo } = req.body;
+    const { restaurantId, menuItems } = req.body;
     const userId = req.user.id;
 
     const restaurant = await Restaurant.findById(restaurantId);
@@ -25,14 +25,9 @@ const createMenu = asyncErrorWrapper(async (req, res, next) => {
 
     const newMenu = await Menu.create({
         restaurantId,
-        name,
-        description,
-        price,
-        category,
-        photo,
+        menuItems
     });
 
-    // Restoranın menüsüne yeni menüyü ekleyelim
     restaurant.menu.push(newMenu);
     await restaurant.save();
 

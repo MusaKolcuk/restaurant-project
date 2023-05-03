@@ -3,12 +3,7 @@ const User = require("./userModel.js");
 const Restaurant = require("./restaurantModel.js");
 const Schema = mongoose.Schema;
 
-const menuSchema = new mongoose.Schema({
-    restaurantId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Restaurant",                              //restaurant modelinden referans alacak
-        required: true
-    },
+const menuItemSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true
@@ -29,7 +24,16 @@ const menuSchema = new mongoose.Schema({
         type: String,
         required: true
     }
+});
+
+const menuSchema = new mongoose.Schema({
+    restaurantId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Restaurant",
+        required: true
+    },
+    menuItems: [menuItemSchema]
 }, { timestamps: true });
 
-
 module.exports = mongoose.model("Menu", menuSchema);
+

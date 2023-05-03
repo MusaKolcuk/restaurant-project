@@ -68,10 +68,10 @@ const deleteRestaurant = asyncErrorWrapper(async (req, res) => {
 });
 
 
-
+//Restoranı güncellemek için kullanılır
 const updateRestaurant = asyncErrorWrapper(async (req, res, next) => {
     const { id } = req.params;
-    const { name, description, location, menu, photos, phone, website, openingHours, cuisine, priceRange, acceptsReservations, parkingOptions, creditCard, featuredDishes } = req.body;
+    const { name, description, location, menu, photos, phone, website, openingHours, cuisine, priceRange, acceptsReservations, parkingOptions, creditCard, featuredDishes, category, tags } = req.body;
 
     let restaurant = await Restaurant.findById(id).populate("user");
 
@@ -94,6 +94,8 @@ const updateRestaurant = asyncErrorWrapper(async (req, res, next) => {
     restaurant.parkingOptions = parkingOptions || restaurant.parkingOptions;
     restaurant.creditCard = creditCard || restaurant.creditCard;
     restaurant.featuredDishes = featuredDishes || restaurant.featuredDishes;
+    restaurant.category = category || restaurant.category;
+    restaurant.tags = tags || restaurant.tags;
 
     restaurant = await restaurant.save();
 
@@ -101,8 +103,12 @@ const updateRestaurant = asyncErrorWrapper(async (req, res, next) => {
         success: true,
         data: restaurant
     });
+
 });
 
+
+
+//bu fonksiyon tek bir restoranı listeler
 const getSingleRestaurant = asyncErrorWrapper(async (req, res, next) => {
     const { id } = req.params;
 
@@ -117,6 +123,7 @@ const getSingleRestaurant = asyncErrorWrapper(async (req, res, next) => {
         data: restaurant
     });
 });
+
 
 //bu fonksiyonu kullanarak restoranın yorumlarını listele
 const listCommentsForRestaurant = asyncErrorWrapper(async (req, res, next) => {
@@ -145,5 +152,22 @@ const listCommentsForRestaurant = asyncErrorWrapper(async (req, res, next) => {
 });
 
 
+//bu fonksiyon kategoriye göre restoranları listeler
+const getRestaurantsByCategory = asyncErrorWrapper(async (req, res, next) => {
+    const category = req.params.category;
+    const restaurants = await Restaurant.find({ category });
 
-module.exports = { createRestaurant, getAllRestaurants, deleteRestaurant, updateRestaurant, getSingleRestaurant, listCommentsForRestaurant};
+    if (!restaurants || restaurants.length === 0) {
+        return next(new CustomError("No restaurants found for the given category", 404));
+    }
+
+    return res.status(200).json({
+        success: true,
+        count: restaurants.length,                                                                //kategoriye göre restoran sayısı
+        data: restaurants
+    });
+});
+
+
+
+module.exports = { createRestaurant, getAllRestaurants, deleteRestaurant, updateRestaurant, getSingleRestaurant, listCommentsForRestaurant, getRestaurantsByCategory};
