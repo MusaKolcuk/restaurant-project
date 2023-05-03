@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
+const User = require("./userModel.js");
+const Comment = require("./commentModel.js");
 
 const restaurantSchema = new mongoose.Schema({
     name: {
@@ -75,6 +77,12 @@ const restaurantSchema = new mongoose.Schema({
         ref: "User",
         required: true,
     },
+    comments: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Comment"
+        }
+    ],
     }, { timestamps: true});
 
 module.exports = mongoose.model("Restaurant", restaurantSchema);

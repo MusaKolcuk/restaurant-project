@@ -2,6 +2,7 @@ const Question = require("./models/questionModel");
 const Answer = require("./models/answerModel");
 const User = require("./models/userModel");
 const Restaurant = require("./models/restaurantModel");
+const Comment = require("./models/commentModel");
 const Menu = require("./models/menuModel");
 const fs = require("fs");
 const connectDatabase = require("./helpers/database/connectDatabase");
@@ -17,6 +18,7 @@ const questions = JSON.parse(fs.readFileSync(path + "questions.json" ));
 const answers = JSON.parse(fs.readFileSync(path + "answers.json" ));
 const restaurants = JSON.parse(fs.readFileSync(path + "restaurants.json" ));
 const menus = JSON.parse(fs.readFileSync(path + "menus.json" ));
+const comments = JSON.parse(fs.readFileSync(path + "comments.json" ));
 
 
 dotenv.config({
@@ -32,6 +34,7 @@ const importAllData = async function(){
         await Answer.create(answers);
         await Restaurant.create(restaurants);
         await Menu.create(menus);
+        await Comment.create(comments);
         console.log("Import Process Successful");
 
     }
@@ -51,6 +54,7 @@ const deleteAllData = async function(){
         await Answer.deleteMany();
         await Restaurant.deleteMany();
         await Menu.deleteMany();
+        await Comment.deleteMany();
         console.log("Delete Process Successful");
 
 

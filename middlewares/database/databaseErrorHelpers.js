@@ -3,6 +3,7 @@ const Question = require("../../models/questionModel");
 const Answer = require("../../models/answerModel");
 const Restaurant = require("../../models/restaurantModel");
 const Menu = require("../../models/menuModel");
+const Comment = require("../../models/commentModel");
 const CustomError = require("../../helpers/error/CustomError");
 const asyncErrorWrapper = require("express-async-handler");
 

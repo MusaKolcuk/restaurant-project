@@ -6,6 +6,7 @@ const crypto = require("crypto");                           //crypto modulu ile 
 const Question = require("./questionModel");
 const restaurantModel = require("./restaurantModel");
 const Menu = require("./menuModel");
+const Comment = require("./commentModel");
 
 const UserSchema = new Schema({
 
@@ -71,6 +72,12 @@ const UserSchema = new Schema({
     following: [                                                            //kullanicinin takip ettiklerini tutacagiz.
         {   type: mongoose.Schema.Types.ObjectId,
             ref: 'User'
+        }
+    ],
+    comments: [                                                             //kullanicinin yorumlarini tutacagiz.
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Comment"
         }
     ],
     resetPasswordToken: {

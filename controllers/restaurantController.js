@@ -1,5 +1,6 @@
 const Restaurant = require("../models/restaurantModel");
 const User = require("../models/userModel");
+const Comment = require("../models/commentModel");
 const CustomError = require("../helpers/error/CustomError");
 const asyncErrorWrapper = require("express-async-handler");
 
@@ -68,7 +69,6 @@ const deleteRestaurant = asyncErrorWrapper(async (req, res) => {
 
 
 
-
 const updateRestaurant = asyncErrorWrapper(async (req, res, next) => {
     const { id } = req.params;
     const { name, description, location, menu, photos, phone, website, openingHours, cuisine, priceRange, acceptsReservations, parkingOptions, creditCard, featuredDishes } = req.body;
@@ -118,8 +118,32 @@ const getSingleRestaurant = asyncErrorWrapper(async (req, res, next) => {
     });
 });
 
+//bu fonksiyonu kullanarak restoranın yorumlarını listele
+const listCommentsForRestaurant = asyncErrorWrapper(async (req, res, next) => {
+    const { id } = req.params; // Restoranın ID'si
+
+    // Restoranı veritabanından bulun
+    const restaurant = await Restaurant.findById(id);
+
+    if (!restaurant) {
+        return next(new CustomError("The restaurant not found", 404));
+    }
+
+    // Restoranın yorumlarını bulun ve kullanıcı bilgileriyle birlikte getirin
+    const comments = await Comment.find({ restaurant: id })                                     //burada restaurant id'si ile eşleşen yorumları buluyoruz
+        .populate({
+            path: 'user',
+            select: 'name profile_image'
+        });
+
+    // Yorumları döndürün
+    return res.status(200).json({
+        success: true,
+        count: comments.length,                                                                 // Yorum sayısı
+        data: comments
+    });
+});
 
 
 
-
-module.exports = { createRestaurant, getAllRestaurants, deleteRestaurant, updateRestaurant, getSingleRestaurant,};
+module.exports = { createRestaurant, getAllRestaurants, deleteRestaurant, updateRestaurant, getSingleRestaurant, listCommentsForRestaurant};

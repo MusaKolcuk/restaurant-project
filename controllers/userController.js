@@ -2,7 +2,8 @@ const User = require("../models/userModel");
 const CustomError = require("../helpers/error/CustomError");
 const asyncErrorWrapper = require("express-async-handler");
 const Restaurant = require("../models/restaurantModel");
-
+const Menu = require("../models/menuModel");
+const Comment = require("../models/commentModel");
 
 const getSingleUser = asyncErrorWrapper(async (req, res, next) => {
 
@@ -187,5 +188,80 @@ const getFollowers = asyncErrorWrapper(async (req, res, next) => {
     });
 });
 
+const commentOnRestaurant = asyncErrorWrapper(async (req, res, next) => {
+    const { id } = req.params;
+    const { id: userId } = req.user;
+    const { content } = req.body;
 
-module.exports = { getSingleUser, getAllUsers, addToFavorites, isFavorited , getUserFavorites, followUser, unfollowUser, getFollowers  }
+    const user = await User.findById(userId);                                                       //kullaniciyi buluyoruz.
+    const restaurant = await Restaurant.findById(id);                                               //restorani buluyoruz.
+
+    if (!user) {
+        return next(new CustomError("The user not found", 404));
+    }
+
+    if (!restaurant) {
+        return next(new CustomError("The restaurant not found", 404));
+    }
+
+    const comment = await Comment.create({                                                          //comment olusturuyoruz.
+        user: userId,
+        restaurant: id,
+        content,
+    });
+
+    user.comments.push(comment._id);                                                                //comment i user modeline ekliyoruz.
+    await user.save();
+
+
+    restaurant.comments.push(comment._id);                                                          //comment i restaurant modeline ekliyoruz.
+    await restaurant.save();
+
+    return res.status(200).json({
+        success: true,
+        message: "The comment has been successfully created.",
+        data: comment,
+    });
+});
+
+
+//bu fonksiyon ile yorum silme işlemi yapıyoruz.
+const deleteComment = asyncErrorWrapper(async (req, res, next) => {
+    const { id } = req.params; // Yorumun ID'si
+    const { id: userId } = req.user; // Kullanıcının ID'si
+
+    // Yorumu veritabanından bulun
+    const comment = await Comment.findById(id);
+
+    if (!comment) {
+        return next(new CustomError("The comment not found", 404));
+    }
+
+    // Kullanıcının yorumu silebilmesi için yorumun sahibi olup olmadığını kontrol edin
+    if (comment.user.toString() !== userId) {
+        return next(new CustomError("You are not authorized to delete this comment", 403));
+    }
+
+    // Kullanıcıyı ve restoranı bulun
+    const user = await User.findById(userId);
+    const restaurant = await Restaurant.findById(comment.restaurant);
+
+    // Kullanıcının ve restoranın comments alanından yorumun referansını kaldırın
+    user.comments.pull(id);
+    restaurant.comments.pull(id);
+
+    // Kullanıcı ve restoranı kaydedin
+    await user.save();
+    await restaurant.save();
+
+    // Yorumu veritabanından silin
+    await Comment.findByIdAndDelete(id);
+
+    return res.status(200).json({
+        success: true,
+        message: "The comment has been successfully deleted.",
+    });
+});
+
+
+module.exports = { getSingleUser, getAllUsers, addToFavorites, isFavorited , getUserFavorites, followUser, unfollowUser, getFollowers, commentOnRestaurant, deleteComment }

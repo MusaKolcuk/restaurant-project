@@ -5,7 +5,6 @@ const user = require("./userRoute");
 const admin = require("./adminRoute");
 const restaurant = require("./restaurantRoute");
 const menu = require("./menuRoute");
-
 //bu sayfada tum route'lar birlestirilir.
 //api
 

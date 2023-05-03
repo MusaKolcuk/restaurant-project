@@ -5,6 +5,7 @@ const Question = require("../../models/questionModel");
 const Answer = require("../../models/answerModel");
 const Restaurant = require("../../models/restaurantModel");
 const Menu = require("../../models/menuModel");
+const Comment = require("../../models/commentModel");
 const asyncErrorWrapper = require("express-async-handler");
 const {isTokenIncluded, getAccessTokenFromHeader} = require("../../helpers/authorization/tokenHelpers");
 
