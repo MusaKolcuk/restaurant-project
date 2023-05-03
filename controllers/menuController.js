@@ -8,39 +8,61 @@ const CustomError = require("../helpers/error/CustomError.js");
 const asyncErrorWrapper = require('express-async-handler');
 
 
-
+//bu fonksiyon ile yeni bir menu olusturulur.
 const createMenu = asyncErrorWrapper(async (req, res, next) => {
+
     const { restaurantId, menuItems } = req.body;
     const userId = req.user.id;
 
     const restaurant = await Restaurant.findById(restaurantId);
+
     if (!restaurant) {
         return next(new CustomError("The restaurant not found", 404));
     }
 
-    // Restoranın sahibi mi kontrolü yapıldı eğer restoranın sahibi değilse menü oluşturulamaz
+    // Restoran sahibinin kontrolünü yap ve sahip değilse hata döndür
     if (restaurant.user && restaurant.user.toString() !== userId) {
         return next(new CustomError("Only the owner of the restaurant can create a menu", 403));
     }
 
-    const newMenu = await Menu.create({
-        restaurantId,
-        menuItems
+    // Menü öğelerini kategorilere göre gruplandırma
+    const groupedMenuItems = {};
+
+    menuItems.forEach(item => {
+        if (!groupedMenuItems[item.category]) {
+            groupedMenuItems[item.category] = [];
+        }
+        groupedMenuItems[item.category].push(item);
     });
 
+    // Gruplandırılmış menü öğelerini düzenli bir diziye dönüştürme
+    const formattedMenuItems = Object.entries(groupedMenuItems).map(([category, items]) => {
+        return {
+            category,
+            items
+        };
+    });
+
+    // Yeni menüyü oluştur ve veritabanına kaydet
+    const newMenu = await Menu.create({
+        restaurantId,
+        menuCategories: formattedMenuItems
+    });
+
+    // Yeni menüyü restorana ekle ve restoranı kaydet
     restaurant.menu.push(newMenu);
     await restaurant.save();
 
-    res.status(201).json({ message: "Menu created successfully", menu: newMenu });
+    res.status(201).json({ message: "Menu created successfully", menu: newMenu, formattedMenuItems });
 });
 
 
-
-
+//bu fonksiyon ile restoranin menuleri listeleniyor.
 const getAllMenu = asyncErrorWrapper(async (req, res) => {
     const allMenu = await Menu.find();
     res.status(200).json({ message: "Menus retrieved successfully", menus: allMenu });
 });
+
 
 const getDetailMenu = asyncErrorWrapper(async (req, res) => {
     const menu = await Menu.findById(req.params.id);

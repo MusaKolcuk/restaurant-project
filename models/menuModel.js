@@ -16,14 +16,18 @@ const menuItemSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    category: {
-        type: String,
-        required: true
-    },
     photo: {
         type: String,
         required: true
     }
+});
+
+const menuCategorySchema = new mongoose.Schema({
+    category: {
+        type: String,
+        required: true
+    },
+    items: [menuItemSchema]
 });
 
 const menuSchema = new mongoose.Schema({
@@ -32,8 +36,9 @@ const menuSchema = new mongoose.Schema({
         ref: "Restaurant",
         required: true
     },
-    menuItems: [menuItemSchema]
+    menuCategories: [menuCategorySchema]
 }, { timestamps: true });
+
 
 module.exports = mongoose.model("Menu", menuSchema);
 
