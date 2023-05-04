@@ -161,5 +161,59 @@ const updateMenu = asyncErrorWrapper(async (req, res, next) => {
 });
 
 
+//bu fonksiyon ile menu de bulunan itemlar aranir.
+const searchMenuItemByName = asyncErrorWrapper(async (req, res, next) => {
+    const { name } = req.query;
 
-module.exports = { createMenu, getAllMenu, getDetailMenu, deleteMenu, updateMenu };
+    if (!name) {
+        return next(new CustomError("Please provide a name to search", 400));
+    }
+
+    const menuItems = await Menu.aggregate([
+        // unwind işlemi ile menuCategories ve items alanlarındaki arrayler tek tek döndürülür.
+        { $unwind: "$menuCategories" },
+        { $unwind: "$menuCategories.items" },
+        {
+            // match işlemi ile arama yapılır.
+            $match: {
+                "menuCategories.items.name": {
+                    $regex: name,
+                    $options: "i"
+                }
+            }
+        },
+        {
+            //lookup işlemi ile restaurant bilgileri getirilir.
+            $lookup: {
+                from: "restaurants",
+                localField: "restaurantId",
+                foreignField: "_id",
+                as: "restaurant"
+            }
+        },
+        {
+            //unwind işlemi ile restaurant alanı tek tek döndürülür.
+            $unwind: "$restaurant"
+        },
+            //project işlemi ile sadece istenilen alanlar getirilir.
+        {
+            $project: {
+                _id: "$menuCategories.items._id",
+                name: "$menuCategories.items.name",
+                // description: "$menuCategories.items.description",                                                //suanlik description ihtiyacimiz yok
+                price: "$menuCategories.items.price",
+                photo: "$menuCategories.items.photo",
+                restaurant: {
+                    _id: "$restaurant._id",
+                    name: "$restaurant.name"
+                }
+            }
+        }
+    ]);
+
+    res.status(200).json({ success: true, menuItems });
+});
+
+
+
+module.exports = { createMenu, getAllMenu, getDetailMenu, deleteMenu, updateMenu, searchMenuItemByName, };
