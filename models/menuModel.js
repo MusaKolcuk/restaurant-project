@@ -34,7 +34,8 @@ const menuSchema = new mongoose.Schema({
     restaurantId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Restaurant",
-        required: true
+        required: true,
+        unique: true                                                                        // Bir restoranın yalnızca bir menüsü olabilir
     },
     menuCategories: [menuCategorySchema]
 }, { timestamps: true });

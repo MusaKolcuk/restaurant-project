@@ -76,7 +76,7 @@ const getAnswerOwnerAccess = asyncErrorWrapper (async(req, res, next) => {
 });
 
 
-//bu fonksiyon ile restaurant sahibi sadece restaurantu silebilir.
+//bu fonksiyon ile restaurant sahibi sadece restaurant üzerinde degisiklik yapabilir.
 const getRestaurantOwnerAccess = asyncErrorWrapper(async (req, res, next) => {
     const { id } = req.params;
     const { id: userId } = req.user;

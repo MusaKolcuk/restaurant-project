@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const User = require("./userModel.js");
 const Comment = require("./commentModel.js");
+const Menu = require("./menuModel.js");
 
 const restaurantSchema = new mongoose.Schema({
     name: {

@@ -10,7 +10,6 @@ const asyncErrorWrapper = require('express-async-handler');
 
 //bu fonksiyon ile yeni bir menu olusturulur.
 const createMenu = asyncErrorWrapper(async (req, res, next) => {
-
     const { restaurantId, menuItems } = req.body;
     const userId = req.user.id;
 
@@ -23,6 +22,12 @@ const createMenu = asyncErrorWrapper(async (req, res, next) => {
     // Restoran sahibinin kontrolünü yap ve sahip değilse hata döndür
     if (restaurant.user && restaurant.user.toString() !== userId) {
         return next(new CustomError("Only the owner of the restaurant can create a menu", 403));
+    }
+
+    // Restoranın zaten bir menüsü olup olmadığını kontrol et her restoranın yalnızca bir menüsü olabilir
+    const existingMenu = await Menu.findOne({ restaurantId });
+    if (existingMenu) {
+        return next(new CustomError("The restaurant already has a menu", 400));
     }
 
     // Menü öğelerini kategorilere göre gruplandırma
@@ -109,5 +114,52 @@ const deleteMenu = asyncErrorWrapper(async (req, res, next) => {
 
 
 
+//bu fonksiyon ile restoranin menuleri guncelleniyor.
+const updateMenu = asyncErrorWrapper(async (req, res, next) => {
+    const restaurantId = req.params.id;
+    const { menuItems } = req.body;
+    const userId = req.user.id;
 
-module.exports = { createMenu, getAllMenu, getDetailMenu, deleteMenu };
+    const restaurant = await Restaurant.findById(restaurantId);
+    if (!restaurant) {
+        return next(new CustomError("The restaurant not found", 404));
+    }
+
+    // Restoran sahibinin kontrolünü yap ve sahip değilse hata döndür
+    if (restaurant.user && restaurant.user.toString() !== userId) {
+        return next(new CustomError("Only the owner of the restaurant can update this menu", 403));
+    }
+
+    const menu = await Menu.findOne({ restaurantId });
+    if (!menu) {
+        return next(new CustomError("Menu not found", 404));
+    }
+
+    // Menü öğelerini kategorilere göre gruplandırma
+    const groupedMenuItems = {};
+
+    menuItems.forEach(item => {
+        if (!groupedMenuItems[item.category]) {
+            groupedMenuItems[item.category] = [];
+        }
+        groupedMenuItems[item.category].push(item);
+    });
+
+    // Gruplandırılmış menü öğelerini düzenli bir diziye dönüştürme
+    const formattedMenuItems = Object.entries(groupedMenuItems).map(([category, items]) => {
+        return {
+            category,
+            items
+        };
+    });
+
+    // Menüyü güncelle ve veritabanında kaydet
+    menu.menuCategories = formattedMenuItems;
+    await menu.save();
+
+    res.status(200).json({ message: "Menu updated successfully", menu });
+});
+
+
+
+module.exports = { createMenu, getAllMenu, getDetailMenu, deleteMenu, updateMenu };
