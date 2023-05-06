@@ -170,4 +170,5 @@ const getRestaurantsByCategory = asyncErrorWrapper(async (req, res, next) => {
 
 
 
-module.exports = { createRestaurant, getAllRestaurants, deleteRestaurant, updateRestaurant, getSingleRestaurant, listCommentsForRestaurant, getRestaurantsByCategory};
+
+module.exports = { createRestaurant, getAllRestaurants, deleteRestaurant, updateRestaurant, getSingleRestaurant, listCommentsForRestaurant, getRestaurantsByCategory, };

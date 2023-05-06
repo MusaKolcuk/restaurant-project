@@ -16,10 +16,8 @@ const restaurantSchema = new mongoose.Schema({
         type: String,
         // required: true
     },
-    location: {
-        type: String,
-        required: true
-    },
+
+
     menu: [{                                                                //buradaki menü id'si ile menu modelindeki id'yi ilişkilendiriyoruz
         type: mongoose.Schema.Types.ObjectId,
         ref: "Menu"
@@ -103,15 +101,10 @@ const restaurantSchema = new mongoose.Schema({
         type: Array,
         default: []
     },
-    place_id: {                                                                              //google maps api'den gelen place_id
-        type: String,
-    },
 
     }, { timestamps: true});
 
-    const googleMapsClient = require('@google/maps').createClient({                           //google maps api key
-        key: 'YOUR_API_KEY',
-        Promise: Promise
-        });
+
+
 
 module.exports = mongoose.model("Restaurant", restaurantSchema);
