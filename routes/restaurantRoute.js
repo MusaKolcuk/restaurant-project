@@ -1,7 +1,7 @@
 const express = require("express");
 const { getAccessToRoute, getRestaurantOwnerAccess } = require("../middlewares/authorization/auth.js");
 const { createRestaurant, getAllRestaurants, deleteRestaurant, updateRestaurant, getSingleRestaurant, listCommentsForRestaurant,
-    getRestaurantsByCategory, getRestaurantsByPriceRange} = require("../controllers/restaurantController.js");
+    getRestaurantsByCategory, getRestaurantsByPriceRange, generateQRCode} = require("../controllers/restaurantController.js");
 const router = express.Router();
 
 router.post("/", getAccessToRoute, createRestaurant);
@@ -18,5 +18,8 @@ router.get("/category/:category", getRestaurantsByCategory);            //burada
 
 //price range islemleri
 router.get("/price-range/:priceRange", getRestaurantsByPriceRange);     //burada priceRange kısmına fiyat aralığı yazılacak örneğin 100-150 gibi.
+
+//QR code islemleri
+router.get('/:id/qr-code', generateQRCode);                             //burada id kısmına restaurant id'si yazılacak.
 
 module.exports = router;

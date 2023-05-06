@@ -3,6 +3,7 @@ const User = require("../models/userModel");
 const Comment = require("../models/commentModel");
 const CustomError = require("../helpers/error/CustomError");
 const asyncErrorWrapper = require("express-async-handler");
+const QRCode = require("qrcode");
 
 const createRestaurant = asyncErrorWrapper(async (req, res) => {
     const { name } = req.body;
@@ -49,7 +50,8 @@ const getAllRestaurants = asyncErrorWrapper(async (req, res) => {
         .skip(skip)
         .limit(parseInt(limit));                                                //limit string olarak geliyor, integer'a çevirmek için parseInt kullan
 
-    res.status(200).json({ success: true, restaurants });
+        return res.status(200).json({ success: true, restaurants, count: restaurants.length });
+
 });
 
 
@@ -127,7 +129,7 @@ const getSingleRestaurant = asyncErrorWrapper(async (req, res, next) => {
 
 //bu fonksiyonu kullanarak restoranın yorumlarını listele
 const listCommentsForRestaurant = asyncErrorWrapper(async (req, res, next) => {
-    const { id } = req.params; // Restoranın ID'si
+    const { id } = req.params;                                                                  // Restoranın ID'si
 
     // Restoranı veritabanından bulun
     const restaurant = await Restaurant.findById(id);
@@ -193,8 +195,32 @@ const getRestaurantsByPriceRange = asyncErrorWrapper(async (req, res, next) => {
 
 
 
+//bu fonksiyon restaurant menüsü için QR kod oluşturur
+const generateQRCode = asyncErrorWrapper(async (req, res, next) => {
+    const restaurantId = req.params.id;
+    const restaurant = await Restaurant.findById(restaurantId);
+
+    if (!restaurant) {
+        return next(new CustomError("Restaurant not found", 404));
+    }
+
+    // QR kodda saklanacak veriyi belirleyin (ör. restoranın menüsüne erişim için bir URL)
+    const data = `https://example.com/restaurant/${restaurantId}/menu`;
+
+    const qrCode = await new Promise((resolve, reject) => {
+        QRCode.toDataURL(data, (err, url) => {
+            if (err) {
+                reject(new CustomError("Failed to generate QR code", 500));
+            } else {
+                resolve(url);
+            }
+        });
+    });
+
+    res.status(200).json({ success: true, qrCode });
+});
 
 
 
 module.exports = { createRestaurant, getAllRestaurants, deleteRestaurant, updateRestaurant, getSingleRestaurant, listCommentsForRestaurant, getRestaurantsByCategory,
-    getRestaurantsByPriceRange };
+    getRestaurantsByPriceRange, generateQRCode, };
