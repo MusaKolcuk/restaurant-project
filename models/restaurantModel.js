@@ -53,7 +53,16 @@ const restaurantSchema = new mongoose.Schema({
     },
     priceRange: {                   //fiyat araligi
         type: String,
-        required: true
+        required: true,
+        enum: [                                                                             //enum ile sadece belirtilen kategorilerden birini seçebiliriz
+            "50-100",
+            "100-150",
+            "150-200",
+            "200-250",
+            "250-300",
+            "300-up",                                                                       //300 ve üzeri bu şekilde yazılır çünkü enum içinde + işareti kullanılamıyor
+            "500-up"
+        ]
     },
     acceptsReservations: {          //rezervasyon
         type: Boolean,

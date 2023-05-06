@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
-const Schema = mongoose.Schema;
 const jwt = require("jsonwebtoken")
 const crypto = require("crypto");                           //crypto modulu ile random string olusturacagiz. (reset password icin)
 const Question = require("./questionModel");
@@ -8,7 +7,7 @@ const restaurantModel = require("./restaurantModel");
 const Menu = require("./menuModel");
 const Comment = require("./commentModel");
 
-const UserSchema = new Schema({
+const UserSchema = new mongoose.Schema({
 
     name: {
         type: String,

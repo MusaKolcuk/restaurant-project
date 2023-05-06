@@ -25,7 +25,7 @@ const createRestaurant = asyncErrorWrapper(async (req, res) => {
 
 
 const getAllRestaurants = asyncErrorWrapper(async (req, res) => {
-    const { page = 1, limit = 10, name, location, rating } = req.query;         //sayfalama, sıralama, filtreleme ve sınırlandırma özelliklerini ekle
+    const { page = 1, limit = 10, name, location, rating, } = req.query;         //sayfalama, sıralama, filtreleme ve sınırlandırma özelliklerini ekle
     const skip = (page - 1) * limit;
 
     const query = {};                                                           //filtreleme için boş bir nesne oluştur
@@ -157,6 +157,7 @@ const getRestaurantsByCategory = asyncErrorWrapper(async (req, res, next) => {
     const category = req.params.category;
     const restaurants = await Restaurant.find({ category });
 
+    //eğer kategoriye göre restoran bulunamazsa hata döndürür
     if (!restaurants || restaurants.length === 0) {
         return next(new CustomError("No restaurants found for the given category", 404));
     }
@@ -169,6 +170,31 @@ const getRestaurantsByCategory = asyncErrorWrapper(async (req, res, next) => {
 });
 
 
+//bu fonksiyon fiyat aralığına göre restoranları listeler
+const getRestaurantsByPriceRange = asyncErrorWrapper(async (req, res, next) => {
+    const { priceRange } = req.params;
+
+    if (!priceRange) {
+        return next(new CustomError("Price range is required for filtering", 400));
+    }
+
+    const restaurants = await Restaurant.find({ priceRange });
+
+    if (!restaurants || restaurants.length === 0) {
+        return next(new CustomError("No restaurants found for the given price range", 404));
+    }
+
+    return res.status(200).json({
+        success: true,
+        count: restaurants.length,                                                                  // Fiyat aralığına göre restoran sayısı
+        data: restaurants
+    });
+});
 
 
-module.exports = { createRestaurant, getAllRestaurants, deleteRestaurant, updateRestaurant, getSingleRestaurant, listCommentsForRestaurant, getRestaurantsByCategory, };
+
+
+
+
+module.exports = { createRestaurant, getAllRestaurants, deleteRestaurant, updateRestaurant, getSingleRestaurant, listCommentsForRestaurant, getRestaurantsByCategory,
+    getRestaurantsByPriceRange };
