@@ -26,7 +26,7 @@ const createRestaurant = asyncErrorWrapper(async (req, res) => {
 
 
 const getAllRestaurants = asyncErrorWrapper(async (req, res) => {
-    const { page = 1, limit = 10, name, location, rating, } = req.query;         //sayfalama, sıralama, filtreleme ve sınırlandırma özelliklerini ekle
+    const { page = 1, limit = 1000, name, location, rating, } = req.query;         //sayfalama, sıralama, filtreleme ve sınırlandırma özelliklerini ekle
     const skip = (page - 1) * limit;
 
     const query = {};                                                           //filtreleme için boş bir nesne oluştur
