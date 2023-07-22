@@ -117,17 +117,34 @@ const updateRestaurant = asyncErrorWrapper(async (req, res, next) => {
 const getSingleRestaurant = asyncErrorWrapper(async (req, res, next) => {
     const { id } = req.params;
 
-    const restaurant = await Restaurant.findById(id).populate("user").populate("menu");
+    const restaurant = await Restaurant.findById(id)
+        .populate({
+            path: 'user',
+            select: '-followers -following'
+        })
+        .populate({
+            path: 'comments',
+            populate: {
+                path: 'user',
+                select: 'name profile_image',
+            },
+        })
+        .populate("menu");
 
     if (!restaurant) {
         return next(new CustomError("The restaurant not found", 404));
     }
+
+    const user = await User.findById(restaurant.user._id);
+    restaurant.user._doc.followingCount = user.following.length;
 
     return res.status(200).json({
         success: true,
         data: restaurant
     });
 });
+
+
 
 
 //bu fonksiyonu kullanarak restoranın yorumlarını listele
