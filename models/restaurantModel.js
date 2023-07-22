@@ -22,10 +22,6 @@ const restaurantSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Menu"
     }],
-    photos: {
-        type: Array,
-        default: []
-    },
     phone: {
         type: String,
         required: true
