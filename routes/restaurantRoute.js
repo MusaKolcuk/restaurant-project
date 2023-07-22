@@ -1,8 +1,14 @@
 const express = require("express");
 const { getAccessToRoute, getRestaurantOwnerAccess } = require("../middlewares/authorization/auth.js");
 const { createRestaurant, getAllRestaurants, deleteRestaurant, updateRestaurant, getSingleRestaurant, listCommentsForRestaurant,
-    getRestaurantsByCategory, getRestaurantsByPriceRange, generateQRCode} = require("../controllers/restaurantController.js");
+    getRestaurantsByCategory, getRestaurantsByPriceRange, generateQRCode, imageUpload, deleteRestaurantImage, getAllCategories } = require("../controllers/restaurantController.js");
+
+const ImageUpload = require("../middlewares/libraries/ImageUpload.js");
+
+
 const router = express.Router();
+
+router.get("/categories", getAllCategories);
 
 router.post("/", getAccessToRoute, createRestaurant);
 router.get("/", getAllRestaurants);
@@ -21,5 +27,11 @@ router.get("/price-range/:priceRange", getRestaurantsByPriceRange);     //burada
 
 //QR code islemleri
 router.get('/:id/qr-code', generateQRCode);                             //burada id kısmına restaurant id'si yazılacak.
+
+//restaurant image islemleri
+router.post("/:id/image", [getAccessToRoute, getRestaurantOwnerAccess], ImageUpload.single("restaurant_image"), imageUpload);
+router.put("/:id/deleteRestaurantImage", [getAccessToRoute, getRestaurantOwnerAccess], deleteRestaurantImage);
+
+
 
 module.exports = router;

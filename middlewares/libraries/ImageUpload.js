@@ -1,6 +1,7 @@
 const multer = require('multer');
 const path = require('path');
 const CustomError = require('../../helpers/error/CustomError');
+const  { v4: uuidv4 } = require('uuid');                                    //uuid: dosya isimlerini rastgele olusturmak icin kullanilir.
 
 //Storage: Dosya yukleme islemini burada yapacagiz.
 
@@ -11,8 +12,8 @@ const storage = multer.diskStorage({
     }
     , filename: function (req, file, cb) {
 
-        const extension = file.mimetype.split('/')[1];  //mime type: dosya tipi.
-        req.savedProfileImage = 'image_' + req.user.id + '.' + extension;
+        const extension = path.extname(file.originalname);                                  //path.extname: dosya uzantisi
+        req.savedProfileImage = uuidv4() + extension;                                       //dosya ismi olusturulur.
         cb(null, req.savedProfileImage);
     }
 });
@@ -30,9 +31,9 @@ const fileFilter = (req, file, cb) => {
 }
 
 
-const profileImageUpload = multer({
+const ImageUpload = multer({
     storage: storage,
     fileFilter: fileFilter
 });
 
-module.exports = profileImageUpload
+module.exports = ImageUpload

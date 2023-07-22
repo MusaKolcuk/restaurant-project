@@ -4,6 +4,8 @@ const Comment = require("../models/commentModel");
 const CustomError = require("../helpers/error/CustomError");
 const asyncErrorWrapper = require("express-async-handler");
 const QRCode = require("qrcode");
+const fs = require("fs");
+const mongoose = require("mongoose");
 
 const createRestaurant = asyncErrorWrapper(async (req, res) => {
     const { name } = req.body;
@@ -98,6 +100,7 @@ const updateRestaurant = asyncErrorWrapper(async (req, res, next) => {
     restaurant.featuredDishes = featuredDishes || restaurant.featuredDishes;
     restaurant.category = category || restaurant.category;
     restaurant.tags = tags || restaurant.tags;
+
 
     restaurant = await restaurant.save();
 
@@ -221,6 +224,68 @@ const generateQRCode = asyncErrorWrapper(async (req, res, next) => {
 });
 
 
+//bu fonksiyon restoran resimlerini yükler.
+const imageUpload = asyncErrorWrapper(async (req, res, next) => {
+
+    const restaurantId = req.params.id;                                             //restoran id'sini aliriz.
+
+    const restaurant = await Restaurant.findById(restaurantId);
+
+    if(!req.savedProfileImage) {
+        return next(new CustomError("Please select an image", 400));
+    }
+    if(!restaurant.restaurant_image.includes("default.jpg")) {
+        if(fs.existsSync(`./public/uploads/${restaurant.restaurant_image}`)) {
+            fs.unlinkSync(`./public/uploads/${restaurant.restaurant_image}`);
+        }
+    }
+
+    restaurant.restaurant_image = req.savedProfileImage;
+
+    await restaurant.save();
+
+    return res.status(200).json({
+        success: true,
+        message: "Image Upload Successful",
+        data: restaurant,
+    })
+});
+
+const deleteRestaurantImage = asyncErrorWrapper(async (req, res, next) => {
+    const {id} = req.params;
+
+    const restaurant = await Restaurant.findById(id);
+
+    if(restaurant.restaurant_image.includes("default.jpg")) {
+        return next(new CustomError("This image can not be deleted", 400));
+    }
+
+    if(fs.existsSync(`./public/uploads/${restaurant.restaurant_image}`)) {
+        fs.unlinkSync(`./public/uploads/${restaurant.restaurant_image}`);
+    }
+
+    restaurant.restaurant_image = "default.jpg";
+
+    await restaurant.save();
+
+    return res.status(200).json({
+        success: true,
+        message: "Delete Profile Image Successfull",
+        data: restaurant
+    });
+});
+
+const getAllCategories = asyncErrorWrapper(async (req, res, next) => {
+    const categories = mongoose.model('Restaurant').schema.path('category').enumValues;
+
+    return res.status(200).json({
+        success: true,
+        data: categories
+    });
+});
+
+
+
 
 module.exports = { createRestaurant, getAllRestaurants, deleteRestaurant, updateRestaurant, getSingleRestaurant, listCommentsForRestaurant, getRestaurantsByCategory,
-    getRestaurantsByPriceRange, generateQRCode, };
+    getRestaurantsByPriceRange, generateQRCode, imageUpload, deleteRestaurantImage, getAllCategories };

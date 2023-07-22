@@ -134,9 +134,14 @@ UserSchema.pre("save", function (next) {
 
     const user = this;
     bcrypt.genSalt(10, (err, salt) => {
-        if(err) next(err);                                          //hata yakalama fonksiyonu kullanildi.
+        if(err) {
+            return next(err);                                          //hata yakalama fonksiyonu kullanildi.
+        }
+
         bcrypt.hash(user.password, salt, (err, hash) => {
-            if(err) next(err);
+            if(err) {
+                return next(err);                                          //hata yakalama fonksiyonu kullanildi.
+            }
             user.password = hash;
             next();
         });

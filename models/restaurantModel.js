@@ -110,6 +110,10 @@ const restaurantSchema = new mongoose.Schema({
         type: Array,
         default: []
     },
+    restaurant_image: {
+        type: String,
+        default: "default.jpg"
+    },
 
     }, { timestamps: true});
 

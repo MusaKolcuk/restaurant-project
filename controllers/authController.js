@@ -4,6 +4,8 @@ const asyncErrorWrapper = require("express-async-handler");
 const { sendJwtToClient } = require("../helpers/authorization/tokenHelpers");
 const { validateUserInput, comparePassword } = require("../helpers/input/inputHelpers");
 const sendEmail = require("../helpers/libraries/sendEmail");
+const fs = require("fs");
+
 
 const createUser = asyncErrorWrapper(async (req, res, next) => {
 
@@ -52,19 +54,56 @@ const logout = asyncErrorWrapper(async (req, res, next) => {
 
 const imageUpload = asyncErrorWrapper(async (req, res, next) => {
 
-        const user = await User.findByIdAndUpdate(req.user.id, {           //kullanici id'si ile kullanici bilgileri guncellenir.
-        "profile_image": req.savedProfileImage
-    }, {
-        new: true,
-        runValidators: true                                                 //guncelleme isleminde validasyonlari calistirir.
-    });
+    const userId = req.user.id;                                             //kullanici id'sini aliriz.
 
-    res.status(200).json({
+    const user = await User.findById(userId);
+
+    if(!req.savedProfileImage) {
+        return next(new CustomError("Please select an image", 400));
+    }
+
+    if(!user.profile_image.includes("default.jpg")) {                       //kullaniciya ait profil resmi default.jpg degilse eski resmi sileriz.
+        if(fs.existsSync(`./public/uploads/${user.profile_image}`)) {       //fs.existsSync: dosya varsa true, yoksa false dondurur.
+            fs.unlinkSync(`./public/uploads/${user.profile_image}`);        //fs.unlinkSync: dosyayi siler.
+        }
+    }
+
+    user.profile_image = req.savedProfileImage;                                    //kullaniciya ait profil resmini degistiririz.
+
+    await user.save();
+
+    return res.status(200).json({
         success: true,
         message: "Image Upload Successfull",
-        data: user,                                                         //guncellenmis kullanici bilgileri dondurulur.
-    })
+        data: user
+    });
 });
+
+
+const deleteProfileIamge = asyncErrorWrapper(async (req, res, next) => {
+    const {id} = req.user;
+
+    const user = await User.findById(id);
+
+    if(user.profile_image.includes("default.jpg")) {
+        return next(new CustomError("This image can not be deleted", 400));
+    }
+
+    if(fs.existsSync(`./public/uploads/${user.profile_image}`)) {
+        fs.unlinkSync(`./public/uploads/${user.profile_image}`);
+    }
+
+    user.profile_image = "default.jpg";
+
+    await user.save();
+
+    return res.status(200).json({
+        success: true,
+        message: "Delete Profile Image Successfull",
+        data: user
+    });
+});
+
 
 const getUser = (req, res ,next) => {
     res.json({
@@ -170,4 +209,4 @@ const editDetails = asyncErrorWrapper(async (req, res, next) => {
 
 });
 
-module.exports = { createUser, getUser, login, logout, imageUpload, forgotPassword, resetPassword, editDetails };
+module.exports = { createUser, getUser, login, logout, imageUpload, forgotPassword, resetPassword, editDetails, deleteProfileIamge };
