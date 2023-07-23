@@ -9,13 +9,12 @@ const fs = require("fs");
 
 const createUser = asyncErrorWrapper(async (req, res, next) => {
 
-    const {name, email, password, role} = req.body;
+    const {name, email, password} = req.body;
 
     const user = await User.create({
         name,
         email,
         password,
-        role
     });
 
     sendJwtToClient (user, res);                //kullanici olusturuldugunda otomatik olarak token olusturulur ve kullaniciya gonderilir.
