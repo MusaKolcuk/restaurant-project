@@ -1,5 +1,5 @@
 const express = require("express");
-const { getSingleUser, getAllUsers, addToFavorites, isFavorited, getUserFavorites, followUser, unfollowUser, getFollowers, commentOnRestaurant, deleteComment} = require("../controllers/userController.js");
+const { getSingleUser, getAllUsers, addToFavorites, isFavorited, getUserFavorites, followUser, unfollowUser, getFollowers, commentOnRestaurant, deleteComment, addRate} = require("../controllers/userController.js");
 const { checkUserExist } = require("../middlewares/database/databaseErrorHelpers.js");
 const { getAccessToRoute } = require("../middlewares/authorization/auth.js");
 
@@ -24,6 +24,7 @@ router.post("/:id/addComment", getAccessToRoute, commentOnRestaurant);          
 router.delete("/:id/deleteComment", getAccessToRoute, deleteComment);                                           // id kismina comment id'si yazilacak.
 
 
+router.post("/:id/rate", getAccessToRoute, addRate);
 
 
 

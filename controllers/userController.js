@@ -263,5 +263,34 @@ const deleteComment = asyncErrorWrapper(async (req, res, next) => {
     });
 });
 
+const addRate = asyncErrorWrapper(async (req, res, next) => {
+        const { id } = req.params;
+        const { id: userId } = req.user;
+        const { rate } = req.body;
 
-module.exports = { getSingleUser, getAllUsers, addToFavorites, isFavorited , getUserFavorites, followUser, unfollowUser, getFollowers, commentOnRestaurant, deleteComment }
+        const user = await User.findById(userId);                                                       //kullaniciyi buluyoruz.
+        const restaurant = await Restaurant.findById(id);                                               //restorani buluyoruz.
+
+        if (!user) {
+            return next(new CustomError("The user not found", 404));
+        }
+
+        if (!restaurant) {
+            return next(new CustomError("The restaurant not found", 404));
+        }
+
+        restaurant.rate = rate;
+
+        restaurant.rates.push(userId);
+        await restaurant.save();
+
+
+
+        return res.status(200).json({
+            success: true,
+            message: "The Rate has been successfully created.",
+            data: restaurant,
+        });
+    });
+
+module.exports = { getSingleUser, getAllUsers, addToFavorites, isFavorited , getUserFavorites, followUser, unfollowUser, getFollowers, commentOnRestaurant, deleteComment, addRate }

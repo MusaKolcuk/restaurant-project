@@ -27,8 +27,9 @@ const createRestaurant = asyncErrorWrapper(async (req, res) => {
 });
 
 
+
 const getAllRestaurants = asyncErrorWrapper(async (req, res) => {
-    const { page = 1, limit = 1000, name, location, rating, } = req.query;         //sayfalama, sıralama, filtreleme ve sınırlandırma özelliklerini ekle
+    const { page = 1, limit = 1000, name, location, rate, } = req.query;         //sayfalama, sıralama, filtreleme ve sınırlandırma özelliklerini ekle
     const skip = (page - 1) * limit;
 
     const query = {};                                                           //filtreleme için boş bir nesne oluştur
@@ -43,8 +44,8 @@ const getAllRestaurants = asyncErrorWrapper(async (req, res) => {
 
     let sort = { name: 1 };
 
-    if (rating) {
-        sort = { rating: -1 };
+    if (rate) {
+        sort = { rate: -1 };
     }
 
     const restaurants = await Restaurant.find(query)
@@ -75,7 +76,7 @@ const deleteRestaurant = asyncErrorWrapper(async (req, res) => {
 //Restoranı güncellemek için kullanılır
 const updateRestaurant = asyncErrorWrapper(async (req, res, next) => {
     const { id } = req.params;
-    const { name, description, location, menu, photos, phone, website, openingHours, cuisine, priceRange, acceptsReservations, parkingOptions, creditCard, featuredDishes, category, tags } = req.body;
+    const { name, description, location, menu, photos, phone, website, openingHours, cuisine, priceRange, acceptsReservations, parkingOptions, creditCard, featuredDishes, category, tags, rate } = req.body;
 
     let restaurant = await Restaurant.findById(id).populate("user");
 
@@ -100,6 +101,7 @@ const updateRestaurant = asyncErrorWrapper(async (req, res, next) => {
     restaurant.featuredDishes = featuredDishes || restaurant.featuredDishes;
     restaurant.category = category || restaurant.category;
     restaurant.tags = tags || restaurant.tags;
+    restaurant.rate = rate || restaurant.rate;
 
 
     restaurant = await restaurant.save();
@@ -120,7 +122,7 @@ const getSingleRestaurant = asyncErrorWrapper(async (req, res, next) => {
     const restaurant = await Restaurant.findById(id)
         .populate({
             path: 'user',
-            select: '-followers -following'
+            select: '-followers -following -role -email'
         })
         .populate({
             path: 'comments',

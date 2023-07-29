@@ -110,6 +110,18 @@ const restaurantSchema = new mongoose.Schema({
         type: String,
         default: "default.jpg"
     },
+    rate: {
+        type: Number,
+        default: 0,
+        min: 0,
+        max: 5,
+    },
+    rates: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User"
+        }
+    ]
 
     }, { timestamps: true});
 
